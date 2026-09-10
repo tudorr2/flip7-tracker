@@ -1,0 +1,1450 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Flip 7 Scorekeeper</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23FFC53D%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-weight=%22900%22 fill=%22%230F1115%22>7</text></svg>"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0f1115;
+        --surface: #171a21;
+        --surface-alt: #1f232d;
+        --line: #2a2f3b;
+        --text: #f2f0ea;
+        --muted: #8b90a0;
+        --yellow: #ffc53d;
+        --coral: #ff6b5e;
+        --teal: #2fd9c4;
+        --violet: #9c7fe6;
+        --pink: #ff4f81;
+        --gold: #ffd966;
+        --silver: #c9ceda;
+        --bronze: #e0985e;
+        --radius-lg: 22px;
+        --radius-sm: 12px;
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+
+      @keyframes drift {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(-3%, 4%) scale(1.06);
+        }
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+      }
+      @keyframes drift2 {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(4%, -3%) scale(1.05);
+        }
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          "Inter",
+          -apple-system,
+          sans-serif;
+        min-height: 100vh;
+        padding-bottom: 60px;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        width: 55vw;
+        height: 55vw;
+        max-width: 620px;
+        max-height: 620px;
+        border-radius: 50%;
+        filter: blur(90px);
+        opacity: 0.16;
+        z-index: -1;
+        pointer-events: none;
+      }
+      body::before {
+        top: -18vw;
+        left: -14vw;
+        background: radial-gradient(circle, var(--yellow), transparent 70%);
+        animation: drift 16s ease-in-out infinite;
+      }
+      body::after {
+        bottom: -18vw;
+        right: -14vw;
+        background: radial-gradient(circle, var(--teal), transparent 70%);
+        animation: drift2 19s ease-in-out infinite;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body::before,
+        body::after {
+          animation: none;
+        }
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .wrap {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 28px 18px 0;
+        position: relative;
+      }
+
+      .hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+      }
+
+      .logo {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: clamp(30px, 8vw, 42px);
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        line-height: 1;
+      }
+      .logo span {
+        display: inline-block;
+      }
+      .logo .f1 {
+        color: var(--yellow);
+      }
+      .logo .f2 {
+        color: var(--coral);
+      }
+      .logo .n {
+        color: var(--bg);
+        background: var(--teal);
+        border-radius: 8px;
+        padding: 0 10px;
+        margin-left: 6px;
+        transform: rotate(-4deg);
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .logo:hover .n {
+        transform: rotate(4deg) scale(1.08);
+      }
+      .tagline {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 6px;
+      }
+
+      .target-box {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .target-box input {
+        width: 62px;
+        background: transparent;
+        border: none;
+        color: var(--text);
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        text-align: center;
+      }
+      .target-box input:focus {
+        outline: none;
+      }
+
+      .section-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 17px;
+        margin: 30px 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-title .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--teal);
+      }
+
+      .add-row {
+        display: flex;
+        gap: 10px;
+      }
+      .add-row input[type="text"] {
+        flex: 1;
+        min-width: 0;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        padding: 13px 16px;
+        color: var(--text);
+        font-size: 15px;
+        font-family: "Inter", sans-serif;
+        transition: border-color 0.15s ease;
+      }
+      .add-row input[type="text"]:focus {
+        outline: none;
+        border-color: var(--yellow);
+      }
+      .add-row input[type="text"]::placeholder {
+        color: var(--muted);
+      }
+
+      button {
+        font-family: "Inter", sans-serif;
+        cursor: pointer;
+        border: none;
+      }
+
+      .btn {
+        border-radius: var(--radius-sm);
+        padding: 13px 20px;
+        font-weight: 700;
+        font-size: 14px;
+        transition:
+          transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+          filter 0.12s ease,
+          box-shadow 0.15s ease;
+        white-space: nowrap;
+      }
+      .btn:active {
+        transform: scale(0.94);
+      }
+      .btn-primary {
+        background: var(--yellow);
+        color: #16130a;
+        box-shadow: 0 6px 18px rgba(255, 197, 61, 0.18);
+      }
+      .btn-primary:hover {
+        filter: brightness(1.08);
+        transform: translateY(-1px);
+      }
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--muted);
+      }
+      .btn-ghost:hover {
+        border-color: var(--muted);
+        color: var(--text);
+      }
+      .btn-danger {
+        background: var(--surface-alt);
+        color: var(--coral);
+        border: 1px solid var(--line);
+      }
+      .btn-danger:hover {
+        border-color: var(--coral);
+      }
+      .btn-night {
+        background: linear-gradient(120deg, var(--violet), var(--pink));
+        color: #fff;
+        box-shadow: 0 6px 18px rgba(156, 127, 230, 0.25);
+      }
+      .btn-night:hover {
+        filter: brightness(1.08);
+        transform: translateY(-1px);
+      }
+      .btn-small {
+        padding: 9px 14px;
+        font-size: 12.5px;
+        border-radius: 10px;
+      }
+      .btn:disabled {
+        cursor: default;
+      }
+
+      .roster {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .roster-empty {
+        color: var(--muted);
+        font-size: 14px;
+        padding: 18px 4px;
+      }
+      .roster-item {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-left: 4px solid var(--accent, var(--teal));
+        transition:
+          transform 0.15s ease,
+          border-color 0.15s ease;
+      }
+      .roster-item:hover {
+        transform: translateX(2px);
+      }
+      .roster-item .name {
+        flex: 1;
+        min-width: 0;
+        font-weight: 600;
+        font-size: 15px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .roster-item .wins {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-shrink: 0;
+      }
+      .roster-item .wins b {
+        color: var(--text);
+        font-size: 15px;
+      }
+      .roster-item .remove {
+        background: none;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1;
+        padding: 4px 6px;
+        flex-shrink: 0;
+      }
+      .roster-item .remove:hover {
+        color: var(--coral);
+      }
+
+      .winner-banner {
+        background: linear-gradient(120deg, var(--pink), var(--violet));
+        border-radius: var(--radius-lg);
+        padding: 22px;
+        margin: 18px 0;
+        text-align: center;
+        animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes pop {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .winner-banner .label {
+        font-size: 12.5px;
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 4px;
+      }
+      .winner-banner .name {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: clamp(20px, 5vw, 26px);
+        color: #fff;
+      }
+      .winner-banner .score {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.85);
+        margin-top: 4px;
+      }
+
+      .table-scroll {
+        overflow-x: auto;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--line);
+        background: var(--surface);
+        -webkit-overflow-scrolling: touch;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 420px;
+      }
+      th,
+      td {
+        padding: 12px 14px;
+        text-align: center;
+        font-size: 14px;
+        white-space: nowrap;
+      }
+      thead th {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        padding-top: 16px;
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+        background: var(--surface);
+      }
+      thead th:first-child,
+      tbody td:first-child {
+        text-align: left;
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 12.5px;
+      }
+      tbody tr:not(:last-child) td {
+        border-bottom: 1px solid var(--line);
+      }
+      tbody tr.round-row:nth-child(odd) {
+        background: rgba(255, 255, 255, 0.015);
+      }
+      tbody tr.round-row:hover td {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      tr.total-row td {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        padding: 16px 14px;
+        background: var(--surface-alt);
+      }
+      tr.total-row td:first-child {
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .leader {
+        color: var(--yellow);
+      }
+      .bust-tag {
+        font-size: 10px;
+        color: var(--coral);
+        display: block;
+        margin-top: 2px;
+      }
+      .bonus-tag {
+        font-size: 10px;
+        color: var(--teal);
+        display: block;
+        margin-top: 2px;
+      }
+
+      .empty-state {
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+        padding: 30px 20px;
+      }
+
+      .round-panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        padding: 18px;
+        margin-top: 14px;
+      }
+      .round-panel-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        margin-bottom: 14px;
+        color: var(--muted);
+      }
+      .round-panel-title b {
+        color: var(--text);
+      }
+
+      .player-input-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        flex-wrap: wrap;
+      }
+      .player-input-row:last-of-type {
+        border-bottom: none;
+      }
+      .player-input-row .pname {
+        flex: 1;
+        min-width: 90px;
+        font-weight: 600;
+        font-size: 14.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .swatch {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .player-input-row input[type="number"] {
+        width: 68px;
+        background: var(--surface-alt);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 9px 8px;
+        text-align: center;
+        color: var(--text);
+        font-size: 15px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+      }
+      .player-input-row input[type="number"]:disabled {
+        opacity: 0.35;
+      }
+      .player-input-row input:focus {
+        outline: none;
+        border-color: var(--yellow);
+      }
+
+      .toggle {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        color: var(--muted);
+        cursor: pointer;
+        user-select: none;
+        padding: 6px 9px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        transition:
+          border-color 0.15s ease,
+          color 0.15s ease;
+      }
+      .toggle input {
+        accent-color: var(--yellow);
+      }
+      .toggle.active-bust {
+        border-color: var(--coral);
+        color: var(--coral);
+      }
+      .toggle.active-bonus {
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+
+      .round-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .round-actions .btn {
+        flex: 1;
+      }
+
+      .footer-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 34px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .footer-actions .left {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .credit {
+        color: var(--line);
+        font-size: 11px;
+        text-align: center;
+        margin-top: 40px;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(6, 7, 10, 0.72);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 100;
+        animation: fadein 0.2s ease;
+      }
+      .modal-overlay.show {
+        display: flex;
+      }
+      @keyframes fadein {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        width: 100%;
+        max-width: 520px;
+        max-height: 88vh;
+        overflow-y: auto;
+        padding: 26px 22px;
+        animation: pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .modal-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 24px;
+        text-align: center;
+        background: linear-gradient(120deg, var(--yellow), var(--coral));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .modal-subtitle {
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 4px;
+        margin-bottom: 26px;
+      }
+
+      .podium {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 26px;
+      }
+      .podium-slot {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        max-width: 140px;
+      }
+      .podium-medal {
+        font-size: 24px;
+        margin-bottom: 6px;
+      }
+      .podium-name {
+        font-weight: 700;
+        font-size: 13.5px;
+        text-align: center;
+        margin-bottom: 2px;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .podium-stat {
+        font-size: 11px;
+        color: var(--muted);
+        text-align: center;
+        margin-bottom: 8px;
+      }
+      .podium-bar {
+        width: 100%;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 8px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        color: #16130a;
+      }
+      .podium-slot.rank-1 .podium-bar {
+        height: 100px;
+        background: linear-gradient(180deg, var(--gold), #c89a2e);
+        order: -1;
+      }
+      .podium-slot.rank-2 .podium-bar {
+        height: 72px;
+        background: linear-gradient(180deg, var(--silver), #9298a6);
+      }
+      .podium-slot.rank-3 .podium-bar {
+        height: 52px;
+        background: linear-gradient(180deg, var(--bronze), #a9633a);
+      }
+      .podium-slot.rank-1 {
+        order: 2;
+      }
+      .podium-slot.rank-2 {
+        order: 1;
+      }
+      .podium-slot.rank-3 {
+        order: 3;
+      }
+
+      .standings-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 22px;
+      }
+      .standings-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--surface-alt);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 14px;
+      }
+      .standings-rank {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        color: var(--muted);
+        font-size: 13px;
+        width: 20px;
+      }
+      .standings-name {
+        flex: 1;
+        min-width: 0;
+        font-weight: 600;
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .standings-stats {
+        display: flex;
+        gap: 14px;
+        font-size: 12px;
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+      .standings-stats b {
+        color: var(--text);
+        font-family: "Space Grotesk", sans-serif;
+      }
+
+      .modal-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .modal-actions .btn {
+        width: 100%;
+      }
+
+      @media (max-width: 480px) {
+        .wrap {
+          padding: 20px 14px 0;
+        }
+        .hero {
+          align-items: flex-start;
+        }
+        .add-row {
+          flex-wrap: wrap;
+        }
+        .add-row input[type="text"] {
+          flex-basis: 100%;
+        }
+        .add-row .btn {
+          flex: 1;
+        }
+        .round-actions {
+          flex-direction: column;
+        }
+        .footer-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .footer-actions .left {
+          justify-content: center;
+        }
+        .podium-name {
+          max-width: 78px;
+          font-size: 12px;
+        }
+        .modal-card {
+          padding: 22px 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="hero">
+        <div>
+          <div class="logo">
+            <span class="f1">Flip</span><span class="f2">&nbsp;</span
+            ><span class="n">7</span>
+          </div>
+          <div class="tagline">Score &amp; win tracker</div>
+        </div>
+        <div class="target-box">
+          Target score
+          <input type="number" id="targetInput" value="200" min="1" />
+        </div>
+      </div>
+
+      <div class="section-title">
+        <span class="dot" style="background: var(--yellow)"></span>Players
+      </div>
+      <div class="add-row">
+        <input
+          type="text"
+          id="playerNameInput"
+          placeholder="Add a player name…"
+          maxlength="20"
+        />
+        <button class="btn btn-primary" id="addPlayerBtn">Add</button>
+      </div>
+      <div class="roster" id="rosterList" style="margin-top: 12px"></div>
+
+      <div id="winnerBannerHost"></div>
+
+      <div class="section-title">
+        <span class="dot" style="background: var(--teal)"></span>This game
+      </div>
+      <div class="table-scroll">
+        <table id="scoreTable">
+          <thead>
+            <tr id="tableHeadRow"></tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="round-panel" id="roundPanel">
+        <div class="round-panel-title">
+          Enter scores for <b id="roundNumberLabel">round 1</b>
+        </div>
+        <div id="roundInputs"></div>
+        <div class="round-actions">
+          <button class="btn btn-ghost btn-small" id="undoBtn">
+            Undo last round
+          </button>
+          <button class="btn btn-primary" id="addRoundBtn">Add round</button>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <div class="left">
+          <button class="btn btn-ghost btn-small" id="newGameBtn">
+            New game
+          </button>
+          <button class="btn btn-danger btn-small" id="resetAllBtn">
+            Reset everything
+          </button>
+        </div>
+        <button class="btn btn-night" id="endNightBtn">🏁 End night</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="nightModal">
+      <div class="modal-card">
+        <div class="modal-title">Night's final standings</div>
+        <div class="modal-subtitle" id="nightSubtitle"></div>
+
+        <div class="podium" id="podiumHost"></div>
+        <div class="standings-list" id="standingsHost"></div>
+
+        <div class="modal-actions">
+          <button class="btn btn-danger" id="resetFromModalBtn">
+            Reset everything &amp; start fresh
+          </button>
+          <button class="btn btn-ghost" id="closeModalBtn">Keep playing</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var STORAGE_KEY = "flip7-scorekeeper-state-v2";
+        var ACCENTS = [
+          "#FFC53D",
+          "#FF6B5E",
+          "#2FD9C4",
+          "#9C7FE6",
+          "#FF4F81",
+          "#5EA1FF",
+          "#7CDB6A",
+        ];
+
+        var state = loadState() || {
+          players: [], // {id, name, wins, lifetimePoints}
+          rounds: [], // [{playerId: {score, bust, bonus}}]
+          targetScore: 200,
+          gameOver: false,
+          winnerId: null,
+        };
+        state.players.forEach(function (p) {
+          if (typeof p.lifetimePoints !== "number") p.lifetimePoints = 0;
+        });
+
+        function loadState() {
+          try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+          } catch (e) {
+            return null;
+          }
+        }
+        function saveState() {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          } catch (e) {}
+        }
+        function uid() {
+          return Math.random().toString(36).slice(2, 10);
+        }
+        function accentFor(index) {
+          return ACCENTS[index % ACCENTS.length];
+        }
+
+        function totalFor(playerId) {
+          var sum = 0;
+          state.rounds.forEach(function (r) {
+            var entry = r[playerId];
+            if (entry) sum += entry.score;
+          });
+          return sum;
+        }
+
+        function checkWinner() {
+          if (state.players.length === 0) return;
+          var qualifying = state.players.filter(function (p) {
+            return totalFor(p.id) >= state.targetScore;
+          });
+          if (qualifying.length === 0) {
+            state.gameOver = false;
+            state.winnerId = null;
+            return;
+          }
+          qualifying.sort(function (a, b) {
+            return totalFor(b.id) - totalFor(a.id);
+          });
+          state.gameOver = true;
+          state.winnerId = qualifying[0].id;
+        }
+
+        function addPlayer(name) {
+          name = name.trim();
+          if (!name) return;
+          state.players.push({
+            id: uid(),
+            name: name,
+            wins: 0,
+            lifetimePoints: 0,
+          });
+          saveState();
+          render();
+        }
+
+        function removePlayer(id) {
+          state.players = state.players.filter(function (p) {
+            return p.id !== id;
+          });
+          state.rounds.forEach(function (r) {
+            delete r[id];
+          });
+          if (state.winnerId === id) {
+            state.winnerId = null;
+            state.gameOver = false;
+          }
+          saveState();
+          render();
+        }
+
+        function addRound() {
+          if (state.players.length === 0 || state.gameOver) return;
+          var entry = {};
+          var anyFilled = false;
+          state.players.forEach(function (p) {
+            var numInput = document.getElementById("num-" + p.id);
+            var bustInput = document.getElementById("bust-" + p.id);
+            var bonusInput = document.getElementById("bonus-" + p.id);
+            var bust = bustInput && bustInput.checked;
+            var bonus = bonusInput && bonusInput.checked;
+            var raw = numInput ? numInput.value : "";
+            var val = bust ? 0 : parseInt(raw, 10) || 0;
+            if (bonus) val += 15;
+            if (raw !== "" || bust || bonus) anyFilled = true;
+            entry[p.id] = { score: val, bust: !!bust, bonus: !!bonus };
+          });
+          if (!anyFilled) return;
+          state.rounds.push(entry);
+
+          state.players.forEach(function (p) {
+            var e = entry[p.id];
+            if (e) p.lifetimePoints += e.score;
+          });
+
+          checkWinner();
+          if (state.gameOver) {
+            var winner = state.players.find(function (p) {
+              return p.id === state.winnerId;
+            });
+            if (winner) winner.wins += 1;
+          }
+          saveState();
+          render();
+        }
+
+        function undoLastRound() {
+          if (state.rounds.length === 0) return;
+          var last = state.rounds.pop();
+          state.players.forEach(function (p) {
+            var e = last[p.id];
+            if (e) p.lifetimePoints -= e.score;
+          });
+          if (state.gameOver && state.winnerId) {
+            var winner = state.players.find(function (p) {
+              return p.id === state.winnerId;
+            });
+            checkWinner();
+            if (winner && !state.gameOver) {
+              winner.wins = Math.max(0, winner.wins - 1);
+            }
+          } else {
+            checkWinner();
+          }
+          saveState();
+          render();
+        }
+
+        function newGame() {
+          state.rounds = [];
+          state.gameOver = false;
+          state.winnerId = null;
+          saveState();
+          render();
+        }
+
+        function resetAll() {
+          state = {
+            players: [],
+            rounds: [],
+            targetScore: 200,
+            gameOver: false,
+            winnerId: null,
+          };
+          saveState();
+          closeModal();
+          render();
+        }
+
+        function render() {
+          document.getElementById("targetInput").value = state.targetScore;
+
+          renderRoster();
+          renderWinnerBanner();
+          renderTable();
+          renderRoundPanel();
+
+          var endNightBtn = document.getElementById("endNightBtn");
+          endNightBtn.disabled = state.players.length === 0;
+          endNightBtn.style.opacity = state.players.length === 0 ? 0.45 : 1;
+        }
+
+        function renderRoster() {
+          var host = document.getElementById("rosterList");
+          host.innerHTML = "";
+          if (state.players.length === 0) {
+            host.innerHTML =
+              '<div class="roster-empty">No players yet — add names above to start a game.</div>';
+            return;
+          }
+          state.players.forEach(function (p, i) {
+            var row = document.createElement("div");
+            row.className = "roster-item";
+            row.style.setProperty("--accent", accentFor(i));
+            row.innerHTML =
+              '<div class="name">' +
+              escapeHtml(p.name) +
+              "</div>" +
+              '<div class="wins">🏆 <b>' +
+              p.wins +
+              "</b> win" +
+              (p.wins === 1 ? "" : "s") +
+              "</div>" +
+              '<button class="remove" title="Remove player" data-id="' +
+              p.id +
+              '">&times;</button>';
+            row.querySelector(".remove").addEventListener("click", function () {
+              removePlayer(p.id);
+            });
+            host.appendChild(row);
+          });
+        }
+
+        function renderWinnerBanner() {
+          var host = document.getElementById("winnerBannerHost");
+          host.innerHTML = "";
+          if (!state.gameOver || !state.winnerId) return;
+          var winner = state.players.find(function (p) {
+            return p.id === state.winnerId;
+          });
+          if (!winner) return;
+          var div = document.createElement("div");
+          div.className = "winner-banner";
+          div.innerHTML =
+            '<div class="label">Game over</div>' +
+            '<div class="name">' +
+            escapeHtml(winner.name) +
+            " wins!</div>" +
+            '<div class="score">' +
+            totalFor(winner.id) +
+            " points · target was " +
+            state.targetScore +
+            "</div>";
+          host.appendChild(div);
+        }
+
+        function renderTable() {
+          var head = document.getElementById("tableHeadRow");
+          var body = document.getElementById("tableBody");
+          var scroll = document.querySelector(".table-scroll");
+
+          if (state.players.length === 0) {
+            scroll.style.display = "none";
+            return;
+          }
+          scroll.style.display = "block";
+
+          head.innerHTML = "<th>Round</th>";
+          state.players.forEach(function (p, i) {
+            var th = document.createElement("th");
+            th.style.color = accentFor(i);
+            th.textContent = p.name;
+            head.appendChild(th);
+          });
+
+          body.innerHTML = "";
+
+          if (state.rounds.length === 0) {
+            var tr = document.createElement("tr");
+            var td = document.createElement("td");
+            td.colSpan = state.players.length + 1;
+            td.className = "empty-state";
+            td.textContent =
+              "No rounds played yet. Enter scores below and add your first round.";
+            tr.appendChild(td);
+            body.appendChild(tr);
+          } else {
+            state.rounds.forEach(function (r, idx) {
+              var tr = document.createElement("tr");
+              tr.className = "round-row";
+              var first = document.createElement("td");
+              first.textContent = "Round " + (idx + 1);
+              tr.appendChild(first);
+              state.players.forEach(function (p) {
+                var td = document.createElement("td");
+                var e = r[p.id] || { score: 0, bust: false, bonus: false };
+                var html = String(e.score);
+                if (e.bust) html += '<span class="bust-tag">bust</span>';
+                if (e.bonus) html += '<span class="bonus-tag">+15 flip7</span>';
+                td.innerHTML = html;
+                tr.appendChild(td);
+              });
+              body.appendChild(tr);
+            });
+          }
+
+          var totalTr = document.createElement("tr");
+          totalTr.className = "total-row";
+          var totalLabel = document.createElement("td");
+          totalLabel.textContent = "Total";
+          totalTr.appendChild(totalLabel);
+
+          var totals = state.players.map(function (p) {
+            return totalFor(p.id);
+          });
+          var maxTotal = Math.max.apply(null, totals.concat([0]));
+
+          state.players.forEach(function (p, i) {
+            var td = document.createElement("td");
+            var t = totals[i];
+            td.textContent = t;
+            if (t === maxTotal && maxTotal > 0) td.classList.add("leader");
+            totalTr.appendChild(td);
+          });
+          body.appendChild(totalTr);
+        }
+
+        function renderRoundPanel() {
+          var panel = document.getElementById("roundPanel");
+          if (state.players.length === 0) {
+            panel.style.display = "none";
+            return;
+          }
+          panel.style.display = "block";
+
+          var addBtn = document.getElementById("addRoundBtn");
+          var undoBtn = document.getElementById("undoBtn");
+          undoBtn.disabled = state.rounds.length === 0;
+          undoBtn.style.opacity = state.rounds.length === 0 ? 0.4 : 1;
+
+          if (state.gameOver) {
+            document.getElementById("roundNumberLabel").textContent =
+              "next game";
+            addBtn.textContent = "Start a new game to continue";
+            addBtn.disabled = false;
+            addBtn.style.opacity = 1;
+          } else {
+            document.getElementById("roundNumberLabel").textContent =
+              "round " + (state.rounds.length + 1);
+            addBtn.textContent = "Add round";
+            addBtn.disabled = false;
+            addBtn.style.opacity = 1;
+          }
+
+          var host = document.getElementById("roundInputs");
+          host.innerHTML = "";
+          state.players.forEach(function (p, i) {
+            var row = document.createElement("div");
+            row.className = "player-input-row";
+            row.innerHTML =
+              '<div class="pname"><span class="swatch" style="background:' +
+              accentFor(i) +
+              '"></span>' +
+              escapeHtml(p.name) +
+              "</div>" +
+              '<label class="toggle" id="bustLabel-' +
+              p.id +
+              '"><input type="checkbox" id="bust-' +
+              p.id +
+              '" />Bust</label>' +
+              '<label class="toggle" id="bonusLabel-' +
+              p.id +
+              '"><input type="checkbox" id="bonus-' +
+              p.id +
+              '" />+15</label>' +
+              '<input type="number" id="num-' +
+              p.id +
+              '" placeholder="0" min="0" ' +
+              (state.gameOver ? "disabled" : "") +
+              " />";
+            host.appendChild(row);
+          });
+
+          state.players.forEach(function (p) {
+            var bustBox = document.getElementById("bust-" + p.id);
+            var bonusBox = document.getElementById("bonus-" + p.id);
+            var numInput = document.getElementById("num-" + p.id);
+            var bustLabel = document.getElementById("bustLabel-" + p.id);
+            var bonusLabel = document.getElementById("bonusLabel-" + p.id);
+
+            bustBox.addEventListener("change", function () {
+              numInput.disabled = bustBox.checked || state.gameOver;
+              if (bustBox.checked) {
+                numInput.value = "";
+                bonusBox.checked = false;
+                bonusLabel.classList.remove("active-bonus");
+              }
+              bustLabel.classList.toggle("active-bust", bustBox.checked);
+            });
+            bonusBox.addEventListener("change", function () {
+              if (bonusBox.checked) {
+                bustBox.checked = false;
+                numInput.disabled = state.gameOver;
+                bustLabel.classList.remove("active-bust");
+              }
+              bonusLabel.classList.toggle("active-bonus", bonusBox.checked);
+            });
+          });
+        }
+
+        function computeStandings() {
+          return state.players.slice().sort(function (a, b) {
+            if (b.wins !== a.wins) return b.wins - a.wins;
+            return b.lifetimePoints - a.lifetimePoints;
+          });
+        }
+
+        function openNightModal() {
+          if (state.players.length === 0) return;
+          var standings = computeStandings();
+          var top3 = standings.slice(0, 3);
+
+          document.getElementById("nightSubtitle").textContent =
+            standings.length +
+            " player" +
+            (standings.length === 1 ? "" : "s") +
+            " · ranked by wins, then total points";
+
+          var podiumHost = document.getElementById("podiumHost");
+          podiumHost.innerHTML = "";
+          var medals = ["🥇", "🥈", "🥉"];
+          top3.forEach(function (p, i) {
+            var slot = document.createElement("div");
+            slot.className = "podium-slot rank-" + (i + 1);
+            slot.innerHTML =
+              '<div class="podium-medal">' +
+              medals[i] +
+              "</div>" +
+              '<div class="podium-name">' +
+              escapeHtml(p.name) +
+              "</div>" +
+              '<div class="podium-stat">' +
+              p.wins +
+              " win" +
+              (p.wins === 1 ? "" : "s") +
+              " · " +
+              p.lifetimePoints +
+              " pts</div>" +
+              '<div class="podium-bar"></div>';
+            podiumHost.appendChild(slot);
+          });
+
+          var listHost = document.getElementById("standingsHost");
+          listHost.innerHTML = "";
+          standings.forEach(function (p, i) {
+            var row = document.createElement("div");
+            row.className = "standings-row";
+            row.innerHTML =
+              '<div class="standings-rank">#' +
+              (i + 1) +
+              "</div>" +
+              '<div class="standings-name">' +
+              escapeHtml(p.name) +
+              "</div>" +
+              '<div class="standings-stats"><span>🏆 <b>' +
+              p.wins +
+              "</b></span><span>✨ <b>" +
+              p.lifetimePoints +
+              "</b> pts</span></div>";
+            listHost.appendChild(row);
+          });
+
+          document.getElementById("nightModal").classList.add("show");
+        }
+
+        function closeModal() {
+          document.getElementById("nightModal").classList.remove("show");
+        }
+
+        function escapeHtml(s) {
+          var div = document.createElement("div");
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        document
+          .getElementById("addPlayerBtn")
+          .addEventListener("click", function () {
+            var input = document.getElementById("playerNameInput");
+            addPlayer(input.value);
+            input.value = "";
+            input.focus();
+          });
+        document
+          .getElementById("playerNameInput")
+          .addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+              addPlayer(this.value);
+              this.value = "";
+            }
+          });
+        document
+          .getElementById("targetInput")
+          .addEventListener("change", function () {
+            var v = parseInt(this.value, 10);
+            state.targetScore = v && v > 0 ? v : 200;
+            checkWinner();
+            saveState();
+            render();
+          });
+        document
+          .getElementById("addRoundBtn")
+          .addEventListener("click", function () {
+            if (state.gameOver) {
+              newGame();
+            } else {
+              addRound();
+            }
+          });
+        document
+          .getElementById("undoBtn")
+          .addEventListener("click", undoLastRound);
+        document
+          .getElementById("newGameBtn")
+          .addEventListener("click", newGame);
+        document
+          .getElementById("resetAllBtn")
+          .addEventListener("click", function () {
+            if (
+              !confirm(
+                "This clears all players, scores, and win totals. Continue?",
+              )
+            )
+              return;
+            resetAll();
+          });
+        document
+          .getElementById("endNightBtn")
+          .addEventListener("click", openNightModal);
+        document
+          .getElementById("closeModalBtn")
+          .addEventListener("click", closeModal);
+        document
+          .getElementById("resetFromModalBtn")
+          .addEventListener("click", function () {
+            if (
+              !confirm(
+                "This clears all players, scores, and win totals. Continue?",
+              )
+            )
+              return;
+            resetAll();
+          });
+        document
+          .getElementById("nightModal")
+          .addEventListener("click", function (e) {
+            if (e.target === this) closeModal();
+          });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
